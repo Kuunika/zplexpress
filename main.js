@@ -12,6 +12,8 @@ app.use(bodyParser.json());
 // Find the USB printer
 const findPrinter = () => {
   const devices = usb.getDeviceList();
+
+  console.log(devices)
   for (const device of devices) {
     // Check if the device is a printer
     if (device.deviceDescriptor.bDeviceClass === 7) {

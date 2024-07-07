@@ -9,23 +9,25 @@ const port = 3000;
 // Middleware
 app.use(bodyParser.json());
 
-// Find the USB printer
-const findPrinter = () => {
+// Log all connected USB devices for debugging
+const logConnectedDevices = () => {
   const devices = usb.getDeviceList();
-
-  console.log(devices)
-  for (const device of devices) {
-    // Check if the device is a printer
-    if (device.deviceDescriptor.bDeviceClass === 7) {
-      return device;
-    }
-  }
-  return null;
+  devices.forEach(device => {
+    const { idVendor, idProduct } = device.deviceDescriptor;
+    console.log(`Device Found: VendorID=${idVendor.toString(16)}, ProductID=${idProduct.toString(16)}`);
+  });
 };
 
-const printer = findPrinter();
+logConnectedDevices();
+
+// Replace with your printer's vendorId and productId from lsusb output
+const printerVendorId = "0a5f"; // Example vendorId, replace with your printer's
+const printerProductId = "00d3"; // Example productId, replace with your printer's
+
+const printer = usb.findByIds(printerVendorId, printerProductId);
+
 if (!printer) {
-  console.error('Printer not found');
+  console.error('Printer not found. Please ensure it is connected and try again.');
   process.exit(1);
 }
 
@@ -40,9 +42,17 @@ app.post('/print', (req, res) => {
   }
 
   const printerInterface = printer.interfaces[0];
+  if (!printerInterface) {
+    return res.status(500).send('Failed to access printer interface');
+  }
+
   printerInterface.claim();
 
-  const endpoint = printerInterface.endpoints[0];
+  const endpoint = printerInterface.endpoints.find(ep => ep.direction === 'out');
+  if (!endpoint) {
+    return res.status(500).send('Failed to access printer endpoint');
+  }
+
   endpoint.transfer(Buffer.from(zpl, 'utf-8'), (err) => {
     if (err) {
       console.error('Print error:', err);

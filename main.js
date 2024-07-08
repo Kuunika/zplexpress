@@ -1,64 +1,32 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const usb = require('usb');
+const { exec } = require('child_process');
 
-// Initialize the app
 const app = express();
-const port = 3000;
+const port = 3000; // Choose a port for your API
 
-// Middleware
+// Middleware to parse JSON and URL-encoded bodies
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
-// Log all connected USB devices for debugging
-const logConnectedDevices = () => {
-  const devices = usb.getDeviceList();
-  devices.forEach(device => {
-    const { idVendor, idProduct } = device.deviceDescriptor;
-    console.log(`Device Found: VendorID=${idVendor.toString(16)}, ProductID=${idProduct.toString(16)}`);
-  });
-};
-
-logConnectedDevices();
-
-// Replace with your printer's vendorId and productId from lsusb output
-const printerVendorId = "0a5f"; // Example vendorId, replace with your printer's
-const printerProductId = "00d3"; // Example productId, replace with your printer's
-
-const printer = usb.findByIds(printerVendorId, printerProductId);
-
-if (!printer) {
-  console.error('Printer not found. Please ensure it is connected and try again.');
-  process.exit(1);
-}
-
-// Open the printer
-printer.open();
-
-// Endpoint to print ZPL
+// Print ZPL label route
 app.post('/print', (req, res) => {
-  const zpl = req.body.zpl;
-  if (!zpl) {
-    return res.status(400).send('ZPL content is required');
-  }
+  // Get ZPL code from request body
+  const { zpl } = req.body;
 
-  const printerInterface = printer.interfaces[0];
-  if (!printerInterface) {
-    return res.status(500).send('Failed to access printer interface');
-  }
+  // Example command to print using lp (assuming printer name is 'PRINTER_NAME')
+  const printerName = 'PRINTER_NAME'; // Replace with your printer name configured in CUPS
+  const lpCommand = `echo "${zpl}" | lp -d ${printerName}`;
 
-  printerInterface.claim();
-
-  const endpoint = printerInterface.endpoints.find(ep => ep.direction === 'out');
-  if (!endpoint) {
-    return res.status(500).send('Failed to access printer endpoint');
-  }
-
-  endpoint.transfer(Buffer.from(zpl, 'utf-8'), (err) => {
-    if (err) {
-      console.error('Print error:', err);
-      return res.status(500).send('Failed to print ZPL');
+  // Execute lp command
+  exec(lpCommand, (error, stdout, stderr) => {
+    if (error) {
+      console.error(`exec error: ${error}`);
+      return res.status(500).json({ error: 'Failed to print label' });
     }
-    res.send('Printed successfully');
+    console.log(`stdout: ${stdout}`);
+    console.error(`stderr: ${stderr}`);
+    res.status(200).json({ message: 'Label printed successfully' });
   });
 });
 

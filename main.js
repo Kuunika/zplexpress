@@ -16,10 +16,12 @@ app.post('/print', (req, res) => {
 
   // Example command to print using lp (assuming printer name is 'PRINTER_NAME')
   const printerName = 'ching'; // Replace with your printer name configured in CUPS
-  const lpCommand = `echo "${zpl}" | lp -d ${printerName}`;
+  const lpCommand = `echo "${zpl}" | lp -d ${printerName} -o raw`;
 
   // Execute lp command
   exec(lpCommand, (error, stdout, stderr) => {
+
+    console.log(first)
     if (error) {
       console.error(`exec error: ${error}`);
       return res.status(500).json({ error: 'Failed to print label' });

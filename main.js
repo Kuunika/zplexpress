@@ -21,7 +21,7 @@ app.post('/print', (req, res) => {
   // Execute lp command
   exec(lpCommand, (error, stdout, stderr) => {
 
-    console.log(first)
+   
     if (error) {
       console.error(`exec error: ${error}`);
       return res.status(500).json({ error: 'Failed to print label' });

@@ -15,7 +15,7 @@ app.post('/print', (req, res) => {
   const { zpl } = req.body;
 
   // Example command to print using lp (assuming printer name is 'PRINTER_NAME')
-  const printerName = 'PRINTER_NAME'; // Replace with your printer name configured in CUPS
+  const printerName = 'ching'; // Replace with your printer name configured in CUPS
   const lpCommand = `echo "${zpl}" | lp -d ${printerName}`;
 
   // Execute lp command

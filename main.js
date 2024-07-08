@@ -3,22 +3,21 @@ const bodyParser = require('body-parser');
 const { exec } = require('child_process');
 
 const app = express();
-const port = 3000; // Choose a port for your API
+const port = 3000; 
 
-// Middleware to parse JSON and URL-encoded bodies
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Print ZPL label route
+
 app.post('/print', (req, res) => {
-  // Get ZPL code from request body
+ 
   const { zpl } = req.body;
 
-  // Example command to print using lp (assuming printer name is 'PRINTER_NAME')
-  const printerName = 'ching'; // Replace with your printer name configured in CUPS
+  
+  const printerName = 'ching'; 
   const lpCommand = `echo "${zpl}" | lp -d ${printerName} -o raw`;
 
-  // Execute lp command
+
   exec(lpCommand, (error, stdout, stderr) => {
 
    

@@ -21,8 +21,8 @@ const ad = mdns.createAdvertisement(mdns.tcp('http'), 3000, {
 ad.start();
 
 
-app.get("/test", ()=>{
-    return "its running!!";
+app.get("/test", (req,res)=>{
+   res.status(200).json({status:"its running!!!"})
 })
 
 app.post('/print', (req, res) => {

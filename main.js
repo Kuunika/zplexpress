@@ -2,7 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const { exec } = require('child_process');
 const cors = require('cors');
-const mdns = require('mdns');
+
 
 
 const app = express();
@@ -12,13 +12,6 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-const ad = mdns.createAdvertisement(mdns.tcp('http'), 3000, {
-    name: 'zebra reception',
-    txtRecord: {
-        description: 'A sample Node.js service'
-    }
-});
-ad.start();
 
 
 app.get("/test", (req,res)=>{

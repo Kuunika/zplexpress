@@ -1,9 +1,8 @@
+require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
 const { exec } = require('child_process');
 const cors = require('cors');
-
-
 
 const app = express();
 const port = 3000; 
@@ -20,8 +19,8 @@ app.get("/test", (req,res)=>{
 
 app.post('/print', (req, res) => {
   const { zpl } = req.body;  
-  const printerName = 'ching'; 
-  const lpCommand = `echo "${zpl}" | lp -d ${printerName} -o raw`;
+
+  const lpCommand = `echo "${zpl}" | lp -d ${process.env.PRINTER_NAME} -o raw`;
 
 
   exec(lpCommand, (error, stdout, stderr) => {

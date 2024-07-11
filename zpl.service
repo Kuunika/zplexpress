@@ -1,0 +1,15 @@
+[Unit]
+Description=zpl printing Service
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/node /path/to/your/main.js
+Restart=always
+User=nobody
+Group=nogroup
+Environment=PATH=/usr/bin:/usr/local/bin
+Environment=NODE_ENV=production
+WorkingDirectory=/path/to/your/app
+
+[Install]
+WantedBy=multi-user.target
